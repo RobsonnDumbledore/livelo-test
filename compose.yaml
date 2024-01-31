@@ -1,0 +1,10 @@
+version: '3.1'
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: livelo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - "5432:5432"
