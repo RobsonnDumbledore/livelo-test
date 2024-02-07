@@ -1,0 +1,2 @@
+ALTER TABLE product
+ADD COLUMN brand_id VARCHAR(255);

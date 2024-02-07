@@ -1,8 +1,10 @@
 package br.com.codart.integration.product;
 
+import java.util.Set;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import br.com.codart.domain.brand.BrandID;
 import br.com.codart.PostgresContainerConfig;
 import org.springframework.context.annotation.Import;
 import br.com.codart.domain.exceptions.BusinessException;
@@ -15,17 +17,21 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import br.com.codart.infrastructure.product.persistence.ProductRepository;
 import br.com.codart.application.usecase.product.create.CreateProductInput;
 import br.com.codart.application.usecase.product.create.CreateProductUseCase;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Import(PostgresContainerConfig.class)
-public class CreateProductUseCaseConfigTest {
+public class CreateProductUseCaseTest {
 
     private final CreateProductUseCase createProductUseCase;
     private final ProductRepository productRepository;
 
 
     @Autowired
-    public CreateProductUseCaseConfigTest(
+    public CreateProductUseCaseTest(
             CreateProductUseCase createProductUseCase,
             ProductRepository productRepository
     ) {
@@ -45,7 +51,8 @@ public class CreateProductUseCaseConfigTest {
     )
     public void createProductUseCaseTest() {
 
-        final var expectedProduct01 = new CreateProductInput("Eco-friendly Water Bottle", 15.99);
+        final var brandId = BrandID.from("1384754d-d642-4389-8d81-6e35bb90591a");
+        final var expectedProduct01 = new CreateProductInput("Eco-friendly Water Bottle", 15.99, brandId.getValue(), Set.of());
 
         final var actualProductIds = assertDoesNotThrow(() -> createProductUseCase.execute(List.of(expectedProduct01)));
 
@@ -54,6 +61,7 @@ public class CreateProductUseCaseConfigTest {
         productRepository.findById(actualProductIds.get(0)).ifPresent(product -> {
             assertEquals("Eco-friendly Water Bottle", product.getProductName());
             assertEquals(15.99, product.getPrice());
+            assertEquals(actualProductIds.get(0), product.getId());
         });
     }
 
@@ -68,8 +76,9 @@ public class CreateProductUseCaseConfigTest {
     )
     public void validateProductUseCaseInvalidPrice() {
 
+        final var brandId = BrandID.from("1384754d-d642-4389-8d81-6e35bb90591a");
         final var expectedMessageError = "price cannot be negative";
-        final var expectedProduct01 = new CreateProductInput("Toothpaste", -5.00);
+        final var expectedProduct01 = new CreateProductInput("Toothpaste", -5.00, brandId.getValue(), Set.of());
 
         final var actualMessageError = assertThrows(
                 BusinessException.class, () -> createProductUseCase.execute(List.of(expectedProduct01))

@@ -4,6 +4,7 @@ import br.com.codart.application.usecase.discount.find.FindDiscountByPaymentName
 import br.com.codart.domain.order.Order;
 import br.com.codart.domain.order.OrderGateway;
 import br.com.codart.application.usecase.InputMapper;
+import br.com.codart.domain.order.OrderID;
 import br.com.codart.domain.order.OrderItem;
 import br.com.codart.domain.payment.PaymentType;
 
@@ -28,7 +29,7 @@ public class DefaultCreateOrder extends CreateOrderUseCase {
     }
 
     @Override
-    public void execute(OrderInput input) {
+    public String execute(OrderInput input) {
 
         List<OrderItem> orderItems = input.orderItems().stream()
                 .map(orderItemInputMapper::toDomain)
@@ -39,6 +40,8 @@ public class DefaultCreateOrder extends CreateOrderUseCase {
 
         final var order = Order.newOrder(orderItems, paymentType, discount);
 
-        orderGateway.createOrder(order);
+        final var orderId = orderGateway.createOrder(order);
+
+       return orderId.getValue();
     }
 }

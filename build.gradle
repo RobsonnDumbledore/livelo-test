@@ -31,6 +31,10 @@ dependencies {
 	// swagger
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
+	// cache
+	implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
+	implementation("org.springframework.boot:spring-boot-starter-cache:3.2.1")
+
 	// tests
 	testImplementation("com.h2database:h2:2.2.224")
 	testImplementation("org.testcontainers:postgresql:1.16.3")
@@ -50,8 +54,9 @@ tasks.named('test') {
 
 flyway {
 
-	url = (System.getenv("JDBC_DATABASE_URL") ?: "jdbc:postgresql://localhost:5432/housebras?currentSchema=public")
+	url = (System.getenv("JDBC_DATABASE_URL") ?: "jdbc:postgresql://localhost:5432/livelo?currentSchema=public")
 	user = (System.getenv("JDBC_DATABASE_USERNAME") ?: "postgres")
 	password = (System.getenv("JDBC_DATABASE_PASSWORD") ?: "12345")
+	cleanDisabled = false
 
 }

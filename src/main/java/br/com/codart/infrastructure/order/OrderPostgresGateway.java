@@ -2,6 +2,7 @@ package br.com.codart.infrastructure.order;
 
 import br.com.codart.domain.order.Order;
 import br.com.codart.domain.order.OrderGateway;
+import br.com.codart.domain.order.OrderID;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import br.com.codart.infrastructure.order.persistence.OrderEntity;
@@ -18,11 +19,13 @@ public class OrderPostgresGateway implements OrderGateway {
     }
 
     @Override
-    public void createOrder(Order order) {
+    public OrderID createOrder(Order order) {
 
         final var orderEntity = OrderEntity.fromDomain(order);
 
-        orderRepository.save(orderEntity);
+        final var savedOrder = orderRepository.save(orderEntity);
+
+        return OrderID.from(savedOrder.getOrderId());
 
     }
 }

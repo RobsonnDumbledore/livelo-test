@@ -6,9 +6,11 @@ import br.com.codart.domain.exceptions.NotFoundException;
 public class DefaultFindProductById extends FindProductByIdUseCase {
 
     private final ProductGateway productGateway;
+    private final FindProductByIdOutputMapper mapper;
 
-    public DefaultFindProductById(ProductGateway productGateway) {
+    public DefaultFindProductById(ProductGateway productGateway, FindProductByIdOutputMapper mapper) {
         this.productGateway = productGateway;
+        this.mapper = mapper;
     }
 
     @Override
@@ -17,11 +19,7 @@ public class DefaultFindProductById extends FindProductByIdUseCase {
         final var product = productGateway.findProductById(input)
                 .orElseThrow( () -> new NotFoundException("product not found for id: " + input));
 
-        return new FindProductByIdOutput(
-                product.getId().getValue(),
-                product.getProductName().getValue(),
-                product.getPrice().getValue()
-        );
+        return mapper.toOutput(product);
 
     }
 }

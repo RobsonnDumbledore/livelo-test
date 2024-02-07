@@ -4,6 +4,17 @@ spring:
     username: postgres
     password: 12345
   jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 10
+          order_inserts: true
+          order_updates: true
     show-sql: true
   flyway:
     enabled: true
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=200,expireAfterAccess=10s

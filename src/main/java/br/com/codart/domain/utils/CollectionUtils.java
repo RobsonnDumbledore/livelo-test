@@ -1,4 +1,4 @@
-package br.com.codart.infrastructure.utils;
+package br.com.codart.domain.utils;
 
 import java.util.Collection;
 import java.util.List;

@@ -1,12 +1,16 @@
 package br.com.codart.integration.order;
 
+import java.util.Set;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import br.com.codart.domain.brand.BrandID;
 import br.com.codart.PostgresContainerConfig;
+import br.com.codart.domain.category.CategoryID;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import br.com.codart.application.usecase.order.create.OrderInput;
@@ -14,43 +18,32 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import br.com.codart.application.usecase.order.create.OrderItemInput;
 import br.com.codart.infrastructure.order.persistence.OrderRepository;
 import br.com.codart.application.usecase.order.create.CreateOrderUseCase;
-import br.com.codart.infrastructure.product.persistence.ProductRepository;
 import br.com.codart.application.usecase.product.create.CreateProductInput;
 import br.com.codart.application.usecase.product.create.CreateProductUseCase;
 import br.com.codart.application.usecase.product.find.FindProductByIdUseCase;
 
 @SpringBootTest
+@ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Import(PostgresContainerConfig.class)
 public class CreateOrderUseCaseTest {
 
+    private final OrderRepository orderRepository;
     private final CreateOrderUseCase createOrderUseCase;
     private final CreateProductUseCase createProductUseCase;
     private final FindProductByIdUseCase findProductByIdUseCase;
-    private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
-
-    @AfterEach
-    public void cleanUpEach() {
-
-        orderRepository.deleteAll();
-        productRepository.deleteAll();
-    }
-
 
     @Autowired
     public CreateOrderUseCaseTest(
+            OrderRepository orderRepository,
             CreateOrderUseCase createOrderUseCase,
             CreateProductUseCase createProductUseCase,
-            FindProductByIdUseCase findProductByIdUseCase,
-            OrderRepository orderRepository,
-            ProductRepository productRepository
+            FindProductByIdUseCase findProductByIdUseCase
     ) {
-
+        this.orderRepository = orderRepository;
         this.createOrderUseCase = createOrderUseCase;
         this.createProductUseCase = createProductUseCase;
         this.findProductByIdUseCase = findProductByIdUseCase;
-        this.orderRepository = orderRepository;
-        this.productRepository = productRepository;
     }
 
     @Test
@@ -66,17 +59,19 @@ public class CreateOrderUseCaseTest {
     )
     public void createOrderWithPayment_CREDIT_CARD() {
 
-        final var expectedProductId = createProductUseCase
-                .execute(List.of(new CreateProductInput("Eco-friendly Water Bottle", 15.99)));
+        final var brandId = BrandID.from("1384754d-d642-4389-8d81-6e35bb90591a");
+        final var categoryId = CategoryID.from("0a86a5ea-4b0b-4580-9abb-0a754460e6a5");
+        final var product = CreateProductInput.of("Eco-friendly Water Bottle", 15.99, brandId.getValue(), Set.of(categoryId.getValue()));
+        final var outputProductId = createProductUseCase.execute(List.of(product));
 
-        final var expectedProduct = findProductByIdUseCase.execute(expectedProductId.get(0));
+        final var expectedProduct = findProductByIdUseCase.execute(outputProductId.get(0));
 
         final var orderItemInput = new OrderItemInput(1, expectedProduct.id(), expectedProduct.price());
         final var orderInput = new OrderInput(List.of(orderItemInput), "CREDIT_CARD");
 
-        assertDoesNotThrow(() -> createOrderUseCase.execute(orderInput));
+        final var orderId = assertDoesNotThrow(() -> createOrderUseCase.execute(orderInput));
 
-        orderRepository.findAll().forEach(order -> {
+        orderRepository.findById(orderId).ifPresent(order -> {
             Assertions.assertEquals("CREDIT_CARD", order.getPaymentType(), "Payment type mismatch");
             Assertions.assertNotNull(order.getOrderId(), "Order ID should not be null");
             Assertions.assertEquals(15.19, order.getTotal(), "Total should not be zero");
@@ -96,17 +91,17 @@ public class CreateOrderUseCaseTest {
     )
     public void createOrderWithPayment_BANK_SLIP() {
 
-        final var expectedProductId = createProductUseCase
-                .execute(List.of(new CreateProductInput("Eco-friendly Water Bottle", 250.45)));
-
+        final var brandId = BrandID.from("1384754d-d642-4389-8d81-6e35bb90591a");
+        final var categoryId = CategoryID.from("0a86a5ea-4b0b-4580-9abb-0a754460e6a5");
+        final var product = CreateProductInput.of("Eco-friendly Water Bottle", 250.45, brandId.getValue(), Set.of(categoryId.getValue()));
+        final var expectedProductId = createProductUseCase.execute(List.of(product));
         final var expectedProduct = findProductByIdUseCase.execute(expectedProductId.get(0));
-
         final var orderItemInput = new OrderItemInput(1, expectedProduct.id(), expectedProduct.price());
         final var orderInput = new OrderInput(List.of(orderItemInput), "BANK_SLIP");
 
-        assertDoesNotThrow(() -> createOrderUseCase.execute(orderInput));
+       final var orderId = assertDoesNotThrow(() -> createOrderUseCase.execute(orderInput));
 
-        orderRepository.findAll().forEach(order -> {
+        orderRepository.findById(orderId).ifPresent(order -> {
             Assertions.assertEquals("BANK_SLIP", order.getPaymentType(), "Payment type mismatch");
             Assertions.assertNotNull(order.getOrderId(), "Order ID should not be null");
             Assertions.assertEquals(225.41, order.getTotal(), "Total should not be zero");
@@ -126,17 +121,17 @@ public class CreateOrderUseCaseTest {
     )
     public void createOrderWithPayment_BANK_TRANSFER() {
 
+        final var brandId = BrandID.from("1384754d-d642-4389-8d81-6e35bb90591a");
+        final var categoryId = CategoryID.from("0a86a5ea-4b0b-4580-9abb-0a754460e6a5");
         final var expectedProductId = createProductUseCase
-                .execute(List.of(new CreateProductInput("Eco-friendly Water Bottle", 4518.00)));
-
+                .execute(List.of(new CreateProductInput("Eco-friendly Water Bottle", 4518.00, brandId.getValue(), Set.of(categoryId.getValue()))));
         final var expectedProduct = findProductByIdUseCase.execute(expectedProductId.get(0));
-
         final var orderItemInput = new OrderItemInput(1, expectedProduct.id(), expectedProduct.price());
         final var orderInput = new OrderInput(List.of(orderItemInput), "BANK_TRANSFER");
 
-        assertDoesNotThrow(() -> createOrderUseCase.execute(orderInput));
+        final var orderId = assertDoesNotThrow(() -> createOrderUseCase.execute(orderInput));
 
-        orderRepository.findAll().forEach(order -> {
+        orderRepository.findById(orderId).ifPresent(order -> {
             Assertions.assertEquals("BANK_TRANSFER", order.getPaymentType(), "Payment type mismatch");
             Assertions.assertNotNull(order.getOrderId(), "Order ID should not be null");
             Assertions.assertEquals(4179.15, order.getTotal(), "Total should not be zero");

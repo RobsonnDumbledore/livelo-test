@@ -1,7 +1,5 @@
 package br.com.codart.domain.order;
 
-import br.com.codart.domain.product.ProductID;
-
 import java.util.Objects;
 import java.util.UUID;
 

@@ -1,7 +1,10 @@
 package br.com.codart.domain.order;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import br.com.codart.domain.product.Price;
 import br.com.codart.domain.discount.Discount;
 import br.com.codart.domain.payment.PaymentType;

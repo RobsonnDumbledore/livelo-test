@@ -1,9 +1,8 @@
 package br.com.codart.domain.discount.factory;
 
+import java.math.BigDecimal;
 import br.com.codart.domain.discount.Discount;
 import br.com.codart.domain.discount.DiscountBankSlip;
-
-import java.math.BigDecimal;
 
 public class DiscountBankSlipFactory implements DiscountFactory {
     @Override
