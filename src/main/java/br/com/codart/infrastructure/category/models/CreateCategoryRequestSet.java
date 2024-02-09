@@ -5,8 +5,4 @@ import java.util.Set;
 public record CreateCategoryRequestSet(Set<CreateCategoryRequest> categories) {
 }
 
-record CreateCategoryRequest(
-        String name
-) {
 
-}

@@ -28,7 +28,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, String> 
     @Modifying
     @Transactional
     @Query("UPDATE ProductEntity p SET p.active = :isActive WHERE p.id IN :productIds")
-    int updateProductStatus(
+    void updateProductStatus(
             @Param("isActive") boolean isActive,
             @Param("productIds") List<String> ids
     );

@@ -84,7 +84,7 @@ public class ProductResource implements ProductAPI {
     @GetMapping("/v1/{productId}")
     public ResponseEntity<FindProductByIdResponse> findProductById(String productId) {
 
-        final var product = ProductPresenter.toResponse(findProductByIdUseCase.execute(productId));
+        final var product = ProductPresenter.presenter(findProductByIdUseCase.execute(productId));
 
         return ResponseEntity.ok(product);
     }
@@ -93,7 +93,7 @@ public class ProductResource implements ProductAPI {
     @DeleteMapping("/v1")
     public ResponseEntity<RemoveProductByIdResponse> removeProductById(List<String> productIds) {
         final var response = removeProductByIdUseCase.execute(productIds);
-        return ResponseEntity.ok(ProductPresenter.toResponse(response));
+        return ResponseEntity.ok(ProductPresenter.presenter(response));
     }
 
     @Override
@@ -122,7 +122,7 @@ public class ProductResource implements ProductAPI {
         );
 
         final var response = findProductByCategoryUseCase.execute(input)
-                .map(ProductPresenter::toResponse);
+                .map(ProductPresenter::presenter);
 
         return ResponseEntity.ok().body(response);
     }
@@ -143,7 +143,7 @@ public class ProductResource implements ProductAPI {
         );
 
         final var response = findProductByBrandUseCase.execute(input)
-                .map(ProductPresenter::toResponse);
+                .map(ProductPresenter::presenter);
 
         return ResponseEntity.ok().body(response);
     }
@@ -163,7 +163,7 @@ public class ProductResource implements ProductAPI {
         );
 
         final var response = findAllProductUseCase.execute(input)
-                .map(ProductPresenter::toResponse);
+                .map(ProductPresenter::presenter);
 
         return ResponseEntity.ok().body(response);
     }

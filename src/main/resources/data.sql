@@ -13,10 +13,10 @@ INSERT INTO public.brand (brand_id, name, active) VALUES
 ('63053168-bebc-4636-9c6a-25466a90a800', 'Brand C', false);
 
 -- Insere dados em category
-INSERT INTO public.category (category_id, name, active, created_at) VALUES
-('178c979d-53d2-4b9c-86a4-3529c87c933b', 'Electronics', true, '2024-02-07T02:26:21.993350'),
-('782f68d3-6dea-4728-b726-aa792ae742d3', 'Books', true, '2024-02-07T02:26:21.993350'),
-('0a86a5ea-4b0b-4580-9abb-0a754460e6a5', 'Clothing', true, '2024-02-07T02:26:21.993350');
+INSERT INTO public.category (category_id, name, active) VALUES
+('178c979d-53d2-4b9c-86a4-3529c87c933b', 'Electronics', true),
+('782f68d3-6dea-4728-b726-aa792ae742d3', 'Books', true),
+('0a86a5ea-4b0b-4580-9abb-0a754460e6a5', 'Clothing', true);
 
 -- Insere dados em product
 INSERT INTO public.product (product_id, product_name, price, active, brand_id) VALUES

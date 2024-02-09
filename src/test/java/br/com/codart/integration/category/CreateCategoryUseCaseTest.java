@@ -19,13 +19,13 @@ import br.com.codart.application.usecase.category.create.CreateCategoryUseCase;
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Import(PostgresContainerConfig.class)
-public class CreateCategoryTest {
+public class CreateCategoryUseCaseTest {
 
     private final CreateCategoryUseCase createCategoryUseCase;
     private final CategoryRepository categoryRepository;
 
     @Autowired
-    public CreateCategoryTest(
+    public CreateCategoryUseCaseTest(
             CreateCategoryUseCase createCategoryUseCase,
             CategoryRepository categoryRepository
     ) {

@@ -1,7 +1,13 @@
 package br.com.codart.infrastructure.category;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+
+import br.com.codart.domain.product.ProductID;
+import br.com.codart.infrastructure.product.persistence.ProductEntity;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.stream.Collectors;
@@ -24,15 +30,10 @@ import br.com.codart.infrastructure.category.persistence.CategoryRepository;
 public class CategoryPostgresGateway implements CategoryGateway {
 
     private final CategoryRepository categoryRepository;
-    private final GenericBatchUpdateService batchUpdateService;
     private static final Logger logger = LoggerFactory.getLogger(CategoryPostgresGateway.class);
 
-    public CategoryPostgresGateway(
-            CategoryRepository categoryRepository,
-            GenericBatchUpdateService batchUpdateService
-    ) {
+    public CategoryPostgresGateway(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
-        this.batchUpdateService = batchUpdateService;
     }
 
 
@@ -41,27 +42,20 @@ public class CategoryPostgresGateway implements CategoryGateway {
 
         logger.info("Starting creation of categories. Number of categories to be created: {}", categories.size());
 
-        final var categoriesEntity = mapTo(categories, CategoryEntity::fromDomain);
+        final Set<CategoryEntity> categoriesEntity = mapTo(categories, category -> CategoryEntity.fromDomain(category, true));
 
         if (isNotEmpty(categoriesEntity)) {
-
             this.categoryRepository.saveAll(categoriesEntity);
         }
     }
 
     @Override
-    public void changeCategoryStatus(Map<CategoryID, Boolean> categoryStatus) {
+    public void changeCategoryStatus(Boolean isActive, List<CategoryID> categoryIds) {
 
-        logger.info("Starting status change for {} categories.", categoryStatus.size());
+        logger.info("Starting status change for {} categories.", categoryIds.size());
+        final var categoriesToUpdate = mapTo(categoryIds, CategoryID::getValue);
 
-        Map<String, Boolean> convertedCategoryStatus = categoryStatus.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> entry.getKey().getValue(),
-                        Map.Entry::getValue
-                ));
-
-        final var query = "UPDATE category SET active = :isActive WHERE id = :categoryId";
-        this.batchUpdateService.executeBatchUpdate(query, convertedCategoryStatus, "categoryId", CategoryEntity.class);
+        this.categoryRepository.updateCategoryStatus(isActive, categoriesToUpdate);
     }
 
     @Override
@@ -69,11 +63,12 @@ public class CategoryPostgresGateway implements CategoryGateway {
 
         logger.info("Updating category with ID: {}", category.getId());
 
-        final var categoryEntity = CategoryEntity.fromDomain(category);
+        final var categoryEntity = CategoryEntity.fromDomain(category, false);
         this.categoryRepository.save(categoryEntity);
     }
 
     @Override
+    @Transactional
     public void deleteCategory(Set<CategoryID> categoryIds) {
 
         logger.info("Remove categories for : {}", categoryIds.size());
@@ -83,6 +78,16 @@ public class CategoryPostgresGateway implements CategoryGateway {
             this.categoryRepository.deleteByIdIn(ids);
         }
 
+    }
+
+    @Override
+    public List<Category> findAllCategoryById(List<CategoryID> categoryIds) {
+
+        final var productEntities = categoryRepository.findAllByIdIn(mapTo(categoryIds, CategoryID::getValue));
+
+        return productEntities.stream()
+                .map(CategoryEntity::toDomain)
+                .toList();
     }
 
     @Override
@@ -106,13 +111,11 @@ public class CategoryPostgresGateway implements CategoryGateway {
     }
 
     @Override
-    public Category findCategoryById(CategoryID categoryId) {
+    public Optional<Category> findCategoryById(CategoryID categoryId) {
 
         logger.info("Searching for category with ID: {}", categoryId);
 
-       final var categoryEntity = this.categoryRepository.findById(categoryId.getValue())
-                .orElseThrow(() -> new NotFoundException("Category not found for ID: " + categoryId.getValue()));
-
-        return CategoryEntity.toDomain(categoryEntity);
+        return categoryRepository.findById(categoryId.getValue())
+                .map(CategoryEntity::toDomain);
     }
 }

@@ -13,7 +13,7 @@ import br.com.codart.application.usecase.product.remove.RemoveProductByIdOutput;
 
 public interface ProductPresenter {
 
-    static FindProductByIdResponse toResponse(FindProductByIdOutput findProductByIdOutput) {
+    static FindProductByIdResponse presenter(FindProductByIdOutput findProductByIdOutput) {
         return new FindProductByIdResponse(
                 findProductByIdOutput.id(),
                 findProductByIdOutput.name(),
@@ -24,14 +24,14 @@ public interface ProductPresenter {
         );
     }
 
-    static RemoveProductByIdResponse toResponse(RemoveProductByIdOutput removeProductByIdOutput) {
+    static RemoveProductByIdResponse presenter(RemoveProductByIdOutput removeProductByIdOutput) {
         return RemoveProductByIdResponse.of(
                 removeProductByIdOutput.found(),
                 removeProductByIdOutput.notFound()
         );
     }
 
-    static FindProductByCategoryResponse toResponse(FindProductByCategoryOutput findProductByCategoryOutput) {
+    static FindProductByCategoryResponse presenter(FindProductByCategoryOutput findProductByCategoryOutput) {
         return new FindProductByCategoryResponse(
                 findProductByCategoryOutput.id(),
                 findProductByCategoryOutput.name(),
@@ -40,7 +40,7 @@ public interface ProductPresenter {
         );
     }
 
-    static FindProductByBrandResponse toResponse(FindProductByBrandOutput findProductByCategoryOutput) {
+    static FindProductByBrandResponse presenter(FindProductByBrandOutput findProductByCategoryOutput) {
         return new FindProductByBrandResponse(
                 findProductByCategoryOutput.id(),
                 findProductByCategoryOutput.name(),
@@ -49,7 +49,7 @@ public interface ProductPresenter {
         );
     }
 
-    static FindAllProductResponse toResponse(FindAllProductOutput findAllProductOutput) {
+    static FindAllProductResponse presenter(FindAllProductOutput findAllProductOutput) {
         return new FindAllProductResponse(
                 findAllProductOutput.id(),
                 findAllProductOutput.name(),

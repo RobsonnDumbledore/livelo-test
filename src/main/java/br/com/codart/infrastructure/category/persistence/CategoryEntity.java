@@ -1,18 +1,16 @@
 package br.com.codart.infrastructure.category.persistence;
 
-import java.time.LocalDateTime;
 import java.util.Set;
-
-import br.com.codart.domain.category.Category;
-import br.com.codart.domain.category.CategoryID;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import jakarta.persistence.ManyToMany;
-import br.com.codart.infrastructure.product.persistence.ProductEntity;
-import org.hibernate.annotations.CreationTimestamp;
+import br.com.codart.domain.category.Category;
+import br.com.codart.domain.category.CategoryID;
 import org.springframework.data.domain.Persistable;
+import br.com.codart.infrastructure.product.persistence.ProductEntity;
 
 @Entity
 @Table(name = "category")
@@ -28,12 +26,11 @@ public class CategoryEntity implements Persistable<String> {
     @Column(name = "active")
     private boolean active = true;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime creationDate;
-
     @ManyToMany(mappedBy = "categories")
     private Set<ProductEntity> products;
+
+    @Transient
+    private boolean newCategory;
 
     public CategoryEntity() {
     }
@@ -59,15 +56,17 @@ public class CategoryEntity implements Persistable<String> {
 
     @Override
     public boolean isNew() {
-        return getCreationDate() == null;
+        return newCategory;
     }
 
-    public static CategoryEntity fromDomain(Category category) {
-        return new CategoryEntity(
+    public static CategoryEntity fromDomain(Category category, boolean isNew) {
+        CategoryEntity entity = new CategoryEntity(
                 category.getId().getValue(),
                 category.getName(),
                 true
         );
+        entity.setNewCategory(isNew);
+        return entity;
     }
 
     public static CategoryEntity fromDomain(CategoryID categoryID) {
@@ -75,6 +74,7 @@ public class CategoryEntity implements Persistable<String> {
     }
 
     public static Category toDomain(CategoryEntity categoryEntity) {
+
         return Category.with(
                 CategoryID.from(categoryEntity.getId()),
                 categoryEntity.getName(),
@@ -98,7 +98,7 @@ public class CategoryEntity implements Persistable<String> {
         return products;
     }
 
-    public LocalDateTime getCreationDate() {
-        return creationDate;
+    public void setNewCategory(boolean newCategory) {
+        this.newCategory = newCategory;
     }
 }

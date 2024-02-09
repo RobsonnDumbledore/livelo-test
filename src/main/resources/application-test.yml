@@ -15,7 +15,6 @@ spring:
           batch_size: 10
           order_inserts: true
           order_updates: true
-        generate_statistics: true
   sql:
     init:
       mode: always
