@@ -1,4 +1,4 @@
-# Livelo
+# STOOMSTORE
  Este projeto é uma demonstração prática de como aplicar conceitos de arquitetura e design de software para construir um sistema flexível e orientado a domínio. O foco principal é mostrar a implementação de um mecanismo de descontos em pedidos, feito de forma desacoplada de frameworks específicos e tecnologias como REST, GraphQL, ou CLI, expondo somente os use cases.
 
 ## Conceitos e Padrões Utilizados
